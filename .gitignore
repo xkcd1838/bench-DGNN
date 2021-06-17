@@ -1,0 +1,25 @@
+*.pyc
+*.pyo
+*.sif
+exploring_data
+Inductive-representation-learning-on-temporal-graphs
+gnn-comparison
+log-storage
+tgat
+tgn
+*flycheck*
+cls.pth
+gcn.pth
+*.pth
+
+#Ignore pbs logs
+*.sh.e* 
+*.sh.o*
+
+experiment/checkpoints
+experiment/predictions
+experiment/data/wikipedia.csv
+experiment/data/reddit.csv
+experiment/data/seal
+experiment/__pycache__/*
+experiment/*.ipynb

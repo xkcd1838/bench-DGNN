@@ -1,0 +1,23 @@
+data: reddit
+model: tgn
+
+continuous_batch_size:
+  - 200 
+
+learning_rate:
+  - 0.0001
+decoder_weight_decay:
+  - 0.0
+decoder_learning_rate:
+  - 0.0001
+
+num_hist_steps: 1
+
+gcn_parameters:
+  attention_heads: 2
+  dropout: 0.1
+  use_memory: True
+  layer_1_feats: 172
+  layer_2_feats_same_as_l1: True
+  num_layers: 2
+  cls_feats: 100 

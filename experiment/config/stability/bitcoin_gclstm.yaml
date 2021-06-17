@@ -1,0 +1,15 @@
+data: bitcoin-otc
+model: gclstm
+
+
+learning_rate:
+  - 0.005
+
+num_hist_steps: 10
+
+gcn_parameters:
+  layer_1_feats:
+    - 50
+  K: 3
+  layer_2_feats_same_as_l1: True
+  cls_feats: 100 

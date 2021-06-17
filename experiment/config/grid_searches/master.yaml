@@ -1,0 +1,35 @@
+# Default parameters for a run 
+#
+# Each parameter is overwritten if the parameter is specified in the run yaml file.
+
+task: link_pred
+
+save_predictions: False
+use_cuda: True
+use_logfile: True
+notify: True
+skip_computed_grid_cells: True
+run_downstream: False
+
+class_weights: [ 0.1, 0.9]
+negative_mult_training: 100
+negative_mult_test: 100
+smart_neg_sampling: True
+
+steps_accum_gradients: 1
+seed: 1234
+target_measure: MAP # measure to define the best epoch F1, Precision, Recall, MRR, MAP
+target_class: 1 # Target class to get the measure to define the best epoch (all, 0, 1)
+
+num_epochs: 500
+num_epochs_continuous: 50
+early_stop_patience: 100
+eval_after_epochs: 5
+eval_epoch_interval: 5
+
+continuous_batch_size: 200
+decoder_batch_size: 100000
+
+data_loading_params:
+  batch_size: 1
+  num_workers: 8

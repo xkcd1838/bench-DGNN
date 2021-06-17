@@ -1,0 +1,7 @@
+,enron,bitcoin-otc,uc,autonomous-systems,wikipedia,reddit
+snapshot size,30,14,2.2,1,1,1
+train proportion,0.8,0.7,0.71,0.7,0.7,0.7
+val proportion,0.1,0.1,0.1,0.1,0.15,0.15
+node encoding,1 hot,1 hot,1 hot,1 hot,1 hot,1 hot
+filename,enron.csv,soc-sign-bitcoinotc.csv,opsahl-ucsocial.tar.bz2,as-733.tar.gz,wikipedia.csv,reddit.csv
+steps accounted,,,,100,,

@@ -1,0 +1,63 @@
+# Installs Python 3.7.2, PyTorch and PyTorch Geometric. Installation based on the PyTorch Geometric Singularity example
+
+Bootstrap: docker
+From: nvidia/cuda:11.0-cudnn8-devel-ubuntu18.04
+
+%help
+
+  Container with Python3, Pytorch geometric and other libraries required to run Dynamic Graph Neural Networks.
+
+%setup
+
+  #Create the .condarc file where the environments/channels from conda are specified, these are pulled with preference to root
+  cd /
+  touch .condarc
+
+%post
+# PyGeometric install
+PYTHON_VERSION=3.7.2
+CONDA_VERSION=2020.11
+PYTORCH_VERSION=1.7.1
+PYTORCH_VERSION_GEOM=1.7.0 #For pytorch geometric dependencies
+CUDA_VERSION=cu110 #If you change this remember to change the bootstrap "From" on line 4.
+PYTORCH_GEOMETRIC_LIB_VERSION=1.6.1 #For pytorch geometric
+PYTORCH_GEOMETRIC_TEMPORAL_VERSION=0.0.12
+
+export DEBIAN_FRONTEND=noninteractive #tzdata is installed by one of the apt-get installs, this sets it to UTC.
+
+apt-get update
+apt-get install -y --no-install-recommends make build-essential git wget curl \
+libssl-dev llvm zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev libedit-dev \
+#lsb-release software-properties-common # Needed by llvm install script
+
+rm -rf /var/lib/apt/lists/*
+apt-get clean
+
+wget -c https://repo.anaconda.com/archive/Anaconda3-${CONDA_VERSION}-Linux-x86_64.sh
+/bin/bash Anaconda3-${CONDA_VERSION}-Linux-x86_64.sh -bfp /usr/local
+
+conda config --file /.condarc --add channels defaults
+conda config --file /.condarc --add channels conda-forge
+conda update conda
+
+pip install torch==${PYTORCH_VERSION}+${CUDA_VERSION} -f https://download.pytorch.org/whl/torch_stable.html
+
+# install torch-geometric dependencies
+pip install --no-index torch-scatter -f https://pytorch-geometric.com/whl/torch-${PYTORCH_VERSION_GEOM}+${CUDA_VERSION}.html
+pip install --no-index torch-sparse -f https://pytorch-geometric.com/whl/torch-${PYTORCH_VERSION_GEOM}+${CUDA_VERSION}.html
+pip install --no-index torch-cluster -f https://pytorch-geometric.com/whl/torch-${PYTORCH_VERSION_GEOM}+${CUDA_VERSION}.html
+pip install --no-index torch-spline-conv -f https://pytorch-geometric.com/whl/torch-${PYTORCH_VERSION_GEOM}+${CUDA_VERSION}.html
+pip install torch-geometric==$PYTORCH_GEOMETRIC_LIB_VERSION
+pip install torch-geometric-temporal==$PYTORCH_GEOMETRIC_TEMPORAL_VERSION
+
+
+# Framework
+pip install pyyaml \
+matplotlib \
+xgboost
+
+%test
+#python gat.py
+
+%runscript
+exec python "$@"

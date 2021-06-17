@@ -1,0 +1,14 @@
+data: enron
+model: gclstm
+
+learning_rate:
+  - 0.005
+
+num_hist_steps: 5
+
+gcn_parameters:
+  layer_1_feats:
+    - 10
+  layer_2_feats_same_as_l1: True
+  K: 3
+  cls_feats: 10 

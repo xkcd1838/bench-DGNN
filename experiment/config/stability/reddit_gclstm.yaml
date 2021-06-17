@@ -1,0 +1,15 @@
+data: reddit
+model: gclstm
+
+
+learning_rate:
+  - 0.01
+
+num_hist_steps: 5
+
+gcn_parameters:
+  layer_1_feats:
+    - 200
+  K: 3
+  layer_2_feats_same_as_l1: True
+  cls_feats: 100 

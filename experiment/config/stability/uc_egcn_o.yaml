@@ -1,0 +1,17 @@
+data: uc
+model: egcn_o_old
+
+pygeom: False
+
+learning_rate:
+  - 0.001
+
+num_hist_steps: 
+  - 5
+
+gcn_parameters:
+  layer_1_feats:
+    - 200
+  layer_2_feats_same_as_l1: True
+  k_top_grcu: 200
+  cls_feats: 100 

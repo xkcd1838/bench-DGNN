@@ -1,0 +1,17 @@
+data: autonomous-systems
+model: gat
+
+
+learning_rate:
+  - 0.005
+
+num_hist_steps:
+  - 10 
+
+gcn_parameters:
+  attention_heads: 8
+  dropout: 0.5
+  layer_1_feats:
+    - 50
+  layer_2_feats_same_as_l1: True
+  cls_feats: 100 
