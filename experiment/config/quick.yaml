@@ -1,3 +1,5 @@
+#log_folder: 'log_quick'
+
 # Used to quickly test a model or dataset. Simply uncomment the model or dataset you want to run. (last uncommented model/dataset is used)
 #model: gcn
 #model: gat
@@ -5,16 +7,23 @@
 #model: egcn_h
 #model: gclstm
 #model: tgat
-model: tgn
-#data: bitcoin-otc
-#data: autonomous-systems
+#model: tgn
+#model: random #Called R-embed from paper
+#model: random_heuristic # Called random in paper
+#model: cn
+#model: aa
+#model: jaccard 
+#model: newton
+model: ccpa
+
 data: enron
 #data: uc
+#data: bitcoin-otc
+#data: autonomous-systems
 #data: wikipedia
 #data: reddit
 
 #one_cell: True
-save_predictions: False
 use_cuda: True
 use_logfile: False #True/False
 notify: False
@@ -22,8 +31,11 @@ skip_computed_grid_cells: False
 run_downstream: False
 force_encode: True
 
+#Heuristics
+include_existing_edges: False #'adaptive' #False
+
 negative_mult_training: 1
-random_feats: False
+random_feats: True
 learning_rate: 
     - 0.0001
 decoder_learning_rate:
@@ -33,7 +45,7 @@ decoder_weight_decay:
 num_epochs: 10
 num_epochs_continuous: 10
 eval_after_epochs: 0
-num_hist_steps: 1 #'static' #1 #10 #'static' # 1 # number of previous steps used for prediction
+num_hist_steps: 1 #'expanding' #'static' #1 #10 #'static' # number of previous steps used for prediction
 
 seed: 1235
 data_loading_params:
@@ -53,12 +65,9 @@ gcn_parameters:
   # GC-LSTM
   K: 3
 
-  # SEAL
-  hops: 2
-  seal_k: 10
 
   # All
-  layer_1_feats: 172
+  layer_1_feats: 10
   layer_2_feats_same_as_l1: True
   num_layers: 2 #Often doesn't do anything, most models have 2 layers hard coded
-  cls_feats: 100
+  cls_feats: 10

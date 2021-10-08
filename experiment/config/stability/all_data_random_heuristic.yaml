@@ -1,0 +1,10 @@
+data: 
+  - autonomous-systems
+  - bitcoin-otc
+  - enron
+  - reddit
+  - uc
+  - wikipedia
+model: random_heuristic
+num_hist_steps: 1
+include_existing_edges: False

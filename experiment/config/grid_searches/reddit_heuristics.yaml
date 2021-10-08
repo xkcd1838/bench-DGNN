@@ -1,0 +1,21 @@
+data: reddit
+model: 
+  - aa
+  - cn
+  - jaccard
+  - newton
+  - ccpa
+
+include_existing_edges:
+  - True
+  - False
+  - "adaptive"
+
+
+num_hist_steps:
+  - 'expanding'
+  - 1
+  - 5
+  - 10
+
+seed: 1234

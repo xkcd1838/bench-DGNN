@@ -7,7 +7,7 @@ continuous_batch_size:
 random_feats: True
 
 learning_rate:
-  - 0.0001
+  - 0.001
 decoder_weight_decay:
   - 0.0
 decoder_learning_rate:

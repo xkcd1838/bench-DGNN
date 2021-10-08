@@ -1,5 +1,5 @@
 # Benchmarking Graph Neural Networks on Dynamic Link Prediction
-A framework for training graph neural networks on dynamic networks (temporal graphs). This is an extension of the [EvolveGCN code](https://github.com/IBM/EvolveGCN). Every file from the original codebase has been modified, often extensively.
+A framework for training graph neural networks on dynamic networks (temporal graphs). The framework enables the comparison of discrete and continuous models on the discrete network representation. Four types of methods are supported: Link predicion heuristics, static GNNs, discrete DGNNs and continuous DGNNs. This framework is a heavily modified extension of the [EvolveGCN framework](https://github.com/IBM/EvolveGCN).
 
 ## 1. Installation
 ### 1.1 Requirements
@@ -28,7 +28,7 @@ If you do not wish to use a singularity container, you can look at the installat
 
 Place the downloaded datasets in the `experiment/data` folder. 
 
-## 3. Implemented models
+## 3. Implemented GNN models
 | Models      | Paper                                    | Code                                                                                                                                       |
 | ----------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | GCN         | [link](https://arxiv.org/abs/1609.02907) | [link](https://pytorch-geometric.readthedocs.io/en/latest/modules/nn.html#torch_geometric.nn.conv.GCNConv)                                 |
@@ -42,7 +42,7 @@ Place the downloaded datasets in the `experiment/data` folder.
 Code and scripts relevant to the experiment is found in the `experiment` folder. You can run a quick test run (3 min) with the `quick.yaml` found in the `config` folder. Run scripts are found in the `run_scripts` folder. How to run a quick run is shown below.
 
 ```
-./run_scripts/run_cpu.sh config/quicky.yaml #Change to run_gpu.sh if you want to untilize the GPU
+./run_scripts/run_cpu.sh config/quick.yaml #Change to run_gpu.sh if you want to untilize the GPU
 ```
 
 If you wish to run the quick run without the helper script that can be done with the following command.
@@ -53,7 +53,7 @@ singularity exec ../../container.sif python run_exp.py --config_file config/quic
 ## 5. Running in the background
 Helper scripts for convenient background running is also included.
 ```
-./run_scripts/nohup_run_gpu.sh config/quicky.yaml
+./run_scripts/nohup_run_gpu.sh config/quick.yaml
 ```
 
 ## 6. Reproducing results
@@ -72,17 +72,16 @@ It is also possible to run just one parameter setting. This is useful for runnin
 ./run_scripts/run_gpu.sh config/grid_searches/enron_gcn.yaml --one_cell
 ```
 
+By default the framework will check the log folders to see whether the next cell has already been run, and if it finds a log corresponding to that cell, it will skip to the next one. Thus it is simply to restart a grid search if it is interrupted.
+
 ### 6.2 Final results
-The best parameters found during our grid search is found under `config/stability`. To replicate our results, run these configurations with 4 different seeds. Again an example with Enron and GCN.
+The best parameters found during our grid search is in the `config/stability` folder. To replicate our results, run these configurations with 4 different seeds. Again an example with Enron and GCN.
 
 ```
 ./run_scripts/run_gpu.sh config/stability/enron_gcn.yaml
 ```
 
-To get the final table, run all configurations in the stability folder.
-
-##### Final results table
-
+##### mAP scores of GNNs
 | Models  | Enron           | UC              | Bitcoin            | Autonomous      | Wikipedia        | Reddit          |
 | ------- | --------------- | --------------- | ------------------ | --------------- | ---------------- | --------------- |
 | GCN     | 0.3222 ± 0.0216 | 0.0205 ± 0.0047 | 0.0019 ± 0.0018    | 0.0319 ± 0.0057 | 0.00005 0.000004 | 0.0378 ± 0.0068 |
@@ -90,6 +89,5 @@ To get the final table, run all configurations in the stability folder.
 | EGCN-H  | 0.3290 ± 0.0477 | 0.0137 ± 0.0030 | 0.0014 ± 0.0009    | 0.1818 ± 0.0823 | 0.0035 ± 0.0008  | 0.0381 ± 0.0100 |
 | EGCN-O  | 0.3376 ± 0.0311 | 0.0249 ± 0.0011 | 0.0028 ± 0.0012    | 0.1650 ± 0.0327 | 0.0047 ± 0.0014  | 0.0394 ± 0.0054 |
 | GC-LSTM | 0.2700 ± 0.0227 | 0.0474 ± 0.0025 | 0.0020 ± 0.0011    | 0.4063 ± 0.0236 | 0.0073 ± 0.0012  | 0.0973 ± 0.0074 |
-| TGAT    | 0.0582 ± 0.0039 | 0.0007 ± 0.0006 | 0.00005 ± 0.00005  | NA              | 0.0061 ± 0.0004  | 0.1077 ± 0.0073 |
-| TGN     | 0.0545 ± 0.0085 | 0.0072 ± 0.0008 | 0.00005 ± 0.000004 | NA              | 0.0042 ± 0.0004  | 0.0417 ± 0.0091 |
-
+| TGAT    | 0.0582 ± 0.0039 | 0.0007 ± 0.0006 | 0.0002 ± 0.0001    | NA              | 0.0061 ± 0.0004  | 0.1077 ± 0.0073 |
+| TGN     | 0.0545 ± 0.0085 | 0.0072 ± 0.0008 | 0.0001 ± 0.0000    | NA              | 0.0042 ± 0.0004  | 0.0417 ± 0.0091 |

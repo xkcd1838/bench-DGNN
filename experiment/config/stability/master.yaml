@@ -18,6 +18,7 @@ use_cuda: True
 use_logfile: True
 notify: True
 skip_computed_grid_cells: True
+full_test_during_run: True
 run_downstream: False
 
 class_weights: [ 0.1, 0.9]

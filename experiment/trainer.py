@@ -11,16 +11,12 @@ import os.path
 from torch.nn import BCEWithLogitsLoss
 from xgboost import XGBClassifier
 
-from datareaders.seal_utils import SEALDataset
-
-
 class Trainer():
-    def __init__(self,args, splitter, frozen_encoder_splitter, downstream_splitter,
+    def __init__(self,args, splitter, frozen_encoder_splitter,
                  gcn, classifier, comp_loss, dataset, train_encoder=True):
         self.args = args
         self.splitter = splitter
         self.frozen_encoder_splitter = frozen_encoder_splitter
-        self.downstream_splitter = downstream_splitter
         self.tasker = splitter.tasker
         self.gcn = gcn
         self.classifier = classifier
@@ -33,9 +29,7 @@ class Trainer():
         self.train_encoder = train_encoder #Indicate which kind of training this class is for
         self.init_optimizers(args)
 
-        self.downstream = False #Used to keep track of whether we're downstream or not. Not fully implemented.
         self.frozen = False #Used to keep track of whether the encoder is frozen
-        self.set_save_predictions = False #Keep track of whether to save predictions or not
 
         self.use_tgn_memory = args.model == 'tgn' and self.args.gcn_parameters['use_memory'] == True
         self.tgn_train_memory_backup = None
@@ -80,21 +74,18 @@ class Trainer():
 
 
     def init_optimizers(self, args):
-        params = self.gcn.parameters()
-        self.opt_encoder = torch.optim.Adam(params, lr = args.learning_rate)#, weight_decay=args.weight_decay)
-        self.opt_encoder.zero_grad()
+        if args.model != 'random': # Random node embeddings doesn't need optimization
+            params = self.gcn.parameters()
+            self.opt_encoder = torch.optim.Adam(params, lr = args.learning_rate)
+            self.opt_encoder.zero_grad()
 
         params = self.classifier.parameters()
         if self.train_encoder:
-            self.opt_decoder = torch.optim.Adam(params, lr = args.learning_rate)#, weight_decay=args.weight_decay)
+            self.opt_decoder = torch.optim.Adam(params, lr = args.learning_rate)
         else:
             #If we train only the decoder we want a specific learning rate for it and regularization on it.
             self.opt_decoder = torch.optim.Adam(params, lr = args.decoder_learning_rate, weight_decay=args.decoder_weight_decay)
         self.opt_decoder.zero_grad()
-
-    def save_predictions(self, predictions, snapshot, snapshot_index):
-        torch.save(predictions, self.prediction_filename_prefix+str(snapshot_index)+"predictions.pth")
-        torch.save(snapshot, self.prediction_filename_prefix+str(snapshot_index)+"snapshot.pth")
 
     def checkpoint_exists(self):
         if os.path.isfile(self.checkpoint_filename_prefix+'gcn.pth'):
@@ -156,9 +147,7 @@ class Trainer():
 
                 if (len(splitter.test) > 0 and eval_valid==best_eval_valid and do_eval):
                     self.save_checkpoint()
-                    self.set_save_predictions = self.args.save_predictions
                     eval_test, _ = run_epoch(splitter.test, e, 'TEST')
-                    self.set_save_predictions = False
 
 
                     #if self.args.save_node_embeddings:
@@ -251,9 +240,6 @@ class Trainer():
             #assert math.isnan(loss.item()) == False, 'Loss is nan'
             probs = torch.softmax(predictions ,dim=1)[:,1]
 
-            if self.set_save_predictions:
-                self.save_predictions(probs, s.label_sp['idx'], i)
-
             if set_name in ['TEST', 'VALID'] and self.args.task == 'link_pred':
                 self.logger.log_minibatch(loss.detach(),
                                           predictions.detach().cpu(),
@@ -302,9 +288,6 @@ class Trainer():
                 loss = self.comp_loss(predictions, s.label_sp['vals'])
                 probs = torch.softmax(predictions, dim=1)[:,1]
 
-                if self.set_save_predictions:
-                    self.save_predictions(probs, s.label_sp['idx'], i)
-
                 if set_name in ['TEST', 'VALID'] and self.args.task == 'link_pred':
                     self.logger.log_minibatch(loss.detach(),
                                               predictions.detach().cpu(),
@@ -317,7 +300,7 @@ class Trainer():
                                                 predictions.detach().cpu(),
                                                 probs.detach().cpu(),
                                                 s.label_sp['vals'])
-                if set_name == 'TRAIN' and not self.downstream:
+                if set_name == 'TRAIN':
                     self.optim_step(loss) #Only for DGNN training
             else: # Edge based training - including continuous
                 if self.args.model == 'seal':
@@ -341,7 +324,7 @@ class Trainer():
                                     sample.hist_ndFeats,
                                     sample.hist_vals,
                                     sample.hist_node_mask)
-        else: #If snapshot based and continuous, used for downstream learning.
+        else:
             nodes_embs = self.predict_continuous(sample.hist_adj,
                                                  sample.hist_time,
                                                  sample.hist_ndFeats,
@@ -448,7 +431,7 @@ class Trainer():
             pos_prob, neg_prob = self.gcn.contrast(src_batch, target_batch, target_l_fake, times_batch,
                                                    edge_idxs)
 
-            if not self.downstream and not self.frozen: #If we're downstream or frozen we just want to encode
+            if not self.frozen:
                 inter_loss = self.interpolation_loss(pos_prob, pos_label)
                 inter_loss += self.interpolation_loss(neg_prob, neg_label)
 
@@ -497,8 +480,9 @@ class Trainer():
         loss.backward()
 
         if self.tr_step % self.args.steps_accum_gradients == 0:
-            self.opt_encoder.step()
-            self.opt_encoder.zero_grad()
+            if self.args.model != 'random':
+                self.opt_encoder.step()
+                self.opt_encoder.zero_grad()
             self.opt_decoder.step()
             self.opt_decoder.zero_grad()
 

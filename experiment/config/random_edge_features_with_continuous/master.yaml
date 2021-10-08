@@ -4,7 +4,18 @@
 
 task: link_pred
 
+log_folder: 'log_random_edge_feature_continuous'
+
+seed: 
+  - 1235
+  - 1236
+  - 1237
+  - 1238
+
+force_encode: False
+force_random_edge_features: True
 save_predictions: False
+log_negative_sample_range: False
 use_cuda: True
 use_logfile: True
 notify: True
@@ -18,7 +29,6 @@ negative_mult_test: 100
 smart_neg_sampling: True
 
 steps_accum_gradients: 1
-seed: 1234
 target_measure: MAP # measure to define the best epoch F1, Precision, Recall, MRR, MAP
 target_class: 1 # Target class to get the measure to define the best epoch (all, 0, 1)
 
